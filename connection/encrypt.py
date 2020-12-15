@@ -1,46 +1,55 @@
 import numpy as np
 
 
-class ArrayEncryptor:
-    def __init__(self, dims: tuple):
-        self.dims = dims
+def encrypt_str(nparray, string):
+    result = np.zeros(nparray.shape).flatten().astype(nparray.dtype)
+    for index, char in enumerate(string):
+        result[index] += ord(char)
+    return np.matmul(nparray, np.reshape(result, nparray.shape))
 
-    def generate_array(self, max: int, nptype='int32', division_factor: int = 1):
-        return ((np.random.rand(*self.dims) * max) / division_factor).astype(nptype)
+def decrypt_str(nparray, shared):
+    result = ''
+    arr = np.matmul(np.linalg.inv(shared), nparray)
+    for val in arr.flatten():
+        if val == 0:
+            break
+        result += chr(round(val))
+    return result
 
-    def form_array(self, nparray, shared_array, is_client):
-        return np.matmul(nparray, shared_array) if is_client else np.matmul(shared_array, nparray)
+def generate_array(dims, max: int, nptype='int64'):
+    return (np.random.rand(*dims) * max).astype(nptype)
 
-    def get_shared(self, nparray, recvarray, is_client):
-        return np.matmul(nparray, recvarray) if is_client else np.matmul(recvarray, nparray)
+def form_array(nparray, shared_array, is_client):
+    return np.matmul(nparray, shared_array) if is_client else np.matmul(shared_array, nparray)
 
-    def encrypt_str(self, nparray, string):
-        result = nparray.flatten()
-        for index, char in enumerate(string):
-            result[index] += ord(char)
-        return np.reshape(result, nparray.shape)
+def get_shared(nparray, recvarray, is_client):
+    return np.matmul(nparray, recvarray) if is_client else np.matmul(recvarray, nparray)
 
-    def decrypt_str(self, nparray, shared):
-        result = ''
-        for val in (nparray - shared).flatten():
-            if val == 0:
-                break
-            result += chr(abs(val))
-        return result
+# Leave previous functions alone until the class is finished and functional
+# Note to self: do not touch above functions
 
 
-arr = ArrayEncryptor((400, 400))
+class Matrix(list):
+    def __init__(self, max_rand=30):
+        self._arr = generate_array(self, max_rand)  # One of the user's private arrays
 
-gen = arr.generate_array(256)
-gen2 = arr.generate_array(256, division_factor=100)
-shared = arr.generate_array(256, division_factor=100)
+    def encrypt_str(self, str):
+        pass
 
-a = arr.form_array(gen, shared, True)
-b = arr.form_array(gen2, shared, False)
 
-print(A := arr.get_shared(a, gen2, True))  # The namings are confusing
-print(B := arr.get_shared(b, gen, False))
-print(A == B)
+if __name__ == '__main__':
+    dims = (10, 10, 10, 10, 10, 10)
 
-print(arr.encrypt_str(A, 'Hello world!') - B)
-print(arr.decrypt_str(arr.encrypt_str(A, 'Hello world!'), A))
+    a = generate_array(dims, 30)  # One of the user's private arrays
+    b = generate_array(dims, 30)  # Another private array
+    G = generate_array(dims, 30)  # Global/shared array
+
+    Ga = form_array(a, G, True)  # Multiplies the public array and the private array based on the role. This is client
+    Gb = form_array(b, G, False) # This one is server (The roles can be changed)
+
+    A = get_shared(a, Gb, True)  # Multiplies the recieved array and the private array based on the role. This is client
+    B = get_shared(b, Ga, False) # This is server
+
+    print('Are the final arrays equal?', (A == B).flatten()[0])
+
+    print(decrypt_str(encrypt_str(A, 'Hello world!'), B))

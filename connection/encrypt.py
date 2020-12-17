@@ -11,7 +11,6 @@ def decrypt_str(nparray, shared):
     result = ''
     arr = np.matmul(np.linalg.inv(shared), nparray)
     for val in arr.flatten():
-        print(round(val))
         if val <= 0:
             break
         result += chr(round(val))

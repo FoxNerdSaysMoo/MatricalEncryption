@@ -16,5 +16,9 @@ Allow there to be 2 users: Alice and Bob. Let's assign Alice as the client.
 - Once the arrays have been recieved each party multiplies their private array with the recieved array (Alice generates `private * recieved`, Bob vise versa).
 - Now both parties have a shared private array. Alice has `alice * (public * bob)`, and Bob has `(alice * public) * bob`, which due to the associative property of matrices are equal (both have `alice * public * bob`).
 
+## Updates and improvements
+
+- It is now possible to remove the determinant of the global matrix, thus making it much harder to find the private arrays. A extra function is used to ensure the shared arrays can have values encrypted in them.
+
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FFoxNerdSaysMoo%2FPyEncryptors.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FFoxNerdSaysMoo%2FPyEncryptors?ref=badge_large)

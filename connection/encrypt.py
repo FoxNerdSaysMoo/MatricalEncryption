@@ -2,7 +2,7 @@ import numpy as np
 
 
 def encrypt_str(nparray, string):
-    result = np.zeros(nparray.shape).flatten().astype(nparray.dtype)
+    result = np.zeros(nparray.shape).flatten()
     for index, char in enumerate(string):
         result[index] += ord(char)
     return np.matmul(nparray, np.reshape(result, nparray.shape))
@@ -11,12 +11,12 @@ def decrypt_str(nparray, shared):
     result = ''
     arr = np.matmul(np.linalg.inv(shared), nparray)
     for val in arr.flatten():
-        if val <= 0:
+        if val < 1:
             break
         result += chr(round(val))
     return result
 
-def generate_array(dims, max: int, nptype='int64'):
+def generate_array(dims, max: int, nptype='longlong'):
     return (np.random.rand(*dims) * max).astype(nptype)
 
 def form_array(nparray, shared_array, is_client):
@@ -34,11 +34,12 @@ def finish_array(shared):
     arr = shared
     arr[-1] = np.ones(arr[-1].shape)
     return arr
+
 # Leave previous functions alone until the class is finished and functional
 # Note to self: do not touch above functions
 
 
-class Matrix(list):
+class Matrix(list):  # Make this a subclass of np.array
     def __init__(self, max_rand=30):
         self._arr = generate_array(self, max_rand)  # One of the user's private arrays
 
@@ -47,11 +48,11 @@ class Matrix(list):
 
 
 if __name__ == '__main__':
-    dims = (10, 10)
+    dims = (450, 450)
 
-    a = generate_array(dims, 100)
-    b = generate_array(dims, 100)
-    G = make_no_det(generate_array(dims, 100))
+    a = generate_array(dims, 10000000000000000000)
+    b = generate_array(dims, 10000000000000000000)
+    G = make_no_det(generate_array(dims, 10000))
 
     Ga = form_array(a, G, True)
     Gb = form_array(b, G, False)

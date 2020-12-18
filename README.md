@@ -4,6 +4,8 @@
 ## Basics
 The matrix encryption function by utilizing matrix division as a trapdoor function ('matrix division' refers to multiplying by inverse).
 
+Using a determinant-free global variable (or just in standard encryption), the maximum amount of repetitions for a brute-force attack is 256^(n*n) where n is the matrix size.
+
 ## Example scenario
 
 Allow there to be 2 users: Alice and Bob. Let's assign Alice as the client. 

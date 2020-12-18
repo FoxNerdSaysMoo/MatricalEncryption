@@ -16,7 +16,7 @@ def decrypt_str(nparray, shared):
         result += chr(round(val))
     return result
 
-def generate_array(dims, max: int, nptype='longlong'):
+def generate_array(dims, max: int, nptype='int64'):
     return (np.random.rand(*dims) * max).astype(nptype)
 
 def form_array(nparray, shared_array, is_client):
@@ -36,8 +36,6 @@ def finish_array(shared):
     return arr
 
 # Leave previous functions alone until the class is finished and functional
-# Note to self: do not touch above functions
-
 
 class Matrix(list):  # Make this a subclass of np.array
     def __init__(self, max_rand=30):
@@ -48,17 +46,20 @@ class Matrix(list):  # Make this a subclass of np.array
 
 
 if __name__ == '__main__':
-    dims = (450, 450)
+    dims = (5, 5)
 
-    a = generate_array(dims, 10000000000000000000)
-    b = generate_array(dims, 10000000000000000000)
-    G = make_no_det(generate_array(dims, 10000))
+    a = generate_array(dims, 255, 'uint8')
+    b = generate_array(dims, 255, 'uint8')
+    G = make_no_det(generate_array(dims, 65535, 'uint16'))
 
     Ga = form_array(a, G, True)
     Gb = form_array(b, G, False)
 
     A = finish_array(get_shared(a, Gb, True))
     B = finish_array(get_shared(b, Ga, False))
+
+    print('Private key is', a.nbytes * 8, 'bits')
+    print(A.nbytes * 8)
 
     print('Are the final arrays equal?', (A == B).flatten()[0])
     print(decrypt_str(encrypt_str(B, 'Hello world!'), B))

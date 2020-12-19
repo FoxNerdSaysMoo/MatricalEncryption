@@ -1,11 +1,16 @@
 import numpy as np
+import math
 
 
 def encrypt_str(nparray, string):
+    chunks = []
     result = np.zeros(nparray.shape).flatten()
-    for index, char in enumerate(string):
-        result[index] += ord(char)
-    return np.matmul(nparray, np.reshape(result, nparray.shape))
+    for chunk in [string[i:i+len(result)] for i in range(0, len(string), len(result))]:
+        result = np.zeros(nparray.shape).flatten()
+        for index, char in enumerate(chunk):
+            result[index] += ord(char)
+        chunks.append(np.reshape(result, nparray.shape))
+    return np.matmul(nparray, np.concatenate(chunks, axis=1))
 
 def decrypt_str(nparray, shared):
     result = ''
@@ -16,7 +21,7 @@ def decrypt_str(nparray, shared):
         result += chr(round(val))
     return result
 
-def generate_array(dims, max: int, nptype='int64'):
+def generate_array(dims, max: int, nptype='uint16'):
     return (np.random.rand(*dims) * max).astype(nptype)
 
 def form_array(nparray, shared_array, is_client):
@@ -35,6 +40,12 @@ def finish_array(shared):
     arr[-1] = np.ones(arr[-1].shape)
     return arr
 
+def make_square(values, nptype='uint16'):
+    nextval = math.floor(math.sqrt(len(values))) + 1
+    arr = np.zeros((nextval * nextval))
+    arr[:len(values)] = values
+    return np.reshape(arr, (nextval, nextval)).astype(nptype)
+
 # Leave previous functions alone until the class is finished and functional
 
 class Matrix(list):  # Make this a subclass of np.array
@@ -46,6 +57,8 @@ class Matrix(list):  # Make this a subclass of np.array
 
 
 if __name__ == '__main__':
+    from time import perf_counter_ns
+
     dims = (5, 5)
 
     a = generate_array(dims, 255, 'uint8')
@@ -59,7 +72,11 @@ if __name__ == '__main__':
     B = finish_array(get_shared(b, Ga, False))
 
     print('Private key is', a.nbytes * 8, 'bits')
-    print(A.nbytes * 8)
-
     print('Are the final arrays equal?', (A == B).flatten()[0])
     print(decrypt_str(encrypt_str(B, 'Hello world!'), B))
+
+    start = perf_counter_ns()
+    decrypt_str(encrypt_str(B, '.'*1000), A)
+    end = perf_counter_ns()
+
+    print('Total encryption/decryption time for 1kb was', (end-start)/1000000000, 's')

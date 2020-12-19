@@ -1,0 +1,5 @@
+# In-dev binaries
+*.out
+
+**/__pycache__
+.vscode/

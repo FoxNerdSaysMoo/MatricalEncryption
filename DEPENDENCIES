@@ -1,0 +1,6 @@
+This project uses the following libraries:
+ - Numpy (BSD-3 license)
+ - Eigen (MPL-2.0 license)
+
+The Eigen 3.3.9 source code used in the project is included under 'eigen-3.3.9/'
+To ensure that only the MPL-2.0 features of Eigen are used, the `EIGEN_MPL2_ONLY` symbol is defined.

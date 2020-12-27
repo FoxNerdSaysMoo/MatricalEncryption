@@ -9,11 +9,6 @@ using namespace std;
 using Eigen::MatrixXd;
 using Eigen::MatrixXi;
 
-/*
-typedef Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic> Int8Matrix;
-typedef Eigen::Matrix<uint16_t, Eigen::Dynamic, Eigen::Dynamic> Int16Matrix;
-typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, Eigen::Dynamic> Int32Matrix;
-*/
 
 MatrixXi rand_gen(int dim, int max) {
     MatrixXd r = MatrixXd::Random(dim, dim);
@@ -96,7 +91,7 @@ int main() {
     decrypt_str(bGa, encrypt_str(aGb, test_string));
     t = clock() - t;
 
-    cout << "Encryption/decryption time for 10mb was " << float(t)/CLOCKS_PER_SEC << "s" << endl;
+    cout << "Encryption/decryption time for 1mb was " << float(t)/CLOCKS_PER_SEC << "s" << endl;
 
     return 0;
 }

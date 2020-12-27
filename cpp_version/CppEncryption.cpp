@@ -3,6 +3,8 @@
 #include <math.h>
 #include <time.h>
 
+#define EIGEN_MPL2_ONLY
+
 using namespace std;
 using Eigen::MatrixXd;
 using Eigen::MatrixXi;

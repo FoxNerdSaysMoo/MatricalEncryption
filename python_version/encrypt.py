@@ -59,11 +59,11 @@ class Matrix(list):  # Make this a subclass of np.array
 if __name__ == '__main__':
     from time import perf_counter_ns
 
-    dims = (5, 5)
+    dims = (7, 7)
 
     a = generate_array(dims, 255, 'uint8')
     b = generate_array(dims, 255, 'uint8')
-    G = make_no_det(generate_array(dims, 65535, 'uint16'))
+    G = make_no_det(generate_array(dims, 255, 'uint16'))
 
     Ga = form_array(a, G, True)
     Gb = form_array(b, G, False)
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     print(decrypt_str(encrypt_str(B, 'Hello world!'), B))
 
     start = perf_counter_ns()
-    decrypt_str(encrypt_str(B, '.'*1000), A)
+    decrypt_str(encrypt_str(B, '.'*int(1000000/8)), A)
     end = perf_counter_ns()
 
-    print('Total encryption/decryption time for 1kb was', (end-start)/1000000000, 's')
+    print('Total encryption/decryption time for 1Mb was', (end-start)/1000000000, 's')

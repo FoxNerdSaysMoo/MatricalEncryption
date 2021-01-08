@@ -1,8 +1,11 @@
-# In-dev binaries
+# In-dev binaries and tests
 *.out
+*.dat
 
+# Python stuff
 **/__pycache__
-.vscode/
-
 venv/
+
+# IDE stuff
+.vscode/
 .idea/

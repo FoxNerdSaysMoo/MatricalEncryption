@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 
-def encrypt_str(nparray, string):
+def encrypt_str(nparray: np.array, string: str) -> np.array:
     chunks = []
     result = np.zeros(nparray.shape).flatten()
     for chunk in [string[i:i+len(result)] for i in range(0, len(string), len(result))]:
@@ -12,7 +12,8 @@ def encrypt_str(nparray, string):
         chunks.append(np.reshape(result, nparray.shape))
     return np.matmul(nparray, np.concatenate(chunks, axis=1))
 
-def decrypt_str(nparray, shared):
+
+def decrypt_str(nparray: np.array, shared: np.array) -> str:
     result = ''
     arr = np.matmul(np.linalg.inv(shared), nparray)
     for val in arr.flatten():
@@ -21,49 +22,48 @@ def decrypt_str(nparray, shared):
         result += chr(round(val))
     return result
 
-def generate_array(dims, max: int, nptype='uint16'):
+
+def generate_array(dims: tuple, max: int, nptype='uint16') -> np.array:
     return (np.random.rand(*dims) * max).astype(nptype)
 
-def form_array(nparray, shared_array, is_client):
+
+def form_array(nparray: np.array, shared_array: np.array, is_client: bool) -> np.array:
     return np.matmul(nparray, shared_array) if is_client else np.matmul(shared_array, nparray)
 
-def get_shared(nparray, recvarray, is_client):
+
+def get_shared(nparray: np.array, recvarray: np.array, is_client: bool) -> np.array:
     return np.matmul(nparray, recvarray) if is_client else np.matmul(recvarray, nparray)
 
-def make_no_det(nparray):
+
+def make_no_det(nparray: np.array) -> np.array:
     arr = nparray
-    arr[-1] = np.zeros(arr[-1].shape)
+    arr[0] = np.zeros(arr[0].shape)
     return arr
+
 
 def finish_array(shared):
     arr = shared
-    arr[-1] = np.ones(arr[-1].shape)
+    arr[0] = np.ones(arr[0].shape)
     return arr
 
-def make_square(values, nptype='uint16'):
+
+def make_square(values, nptype='uint16') -> np.array:
     nextval = math.floor(math.sqrt(len(values))) + 1
-    arr = np.zeros((nextval * nextval))
-    arr[:len(values)] = values
+    arr = np.ones((nextval * nextval))
+    arr_ = arr.flatten()
+    arr_[:len(values)] = values
+    arr = arr_.reshape(arr.shape)
     return np.reshape(arr, (nextval, nextval)).astype(nptype)
-
-# Leave previous functions alone until the class is finished and functional
-
-class Matrix(list):  # Make this a subclass of np.array
-    def __init__(self, max_rand=30):
-        self._arr = generate_array(self, max_rand)  # One of the user's private arrays
-
-    def encrypt_str(self, str):
-        pass
 
 
 if __name__ == '__main__':
-    from time import perf_counter_ns
+    from timeit import default_timer
 
     dims = (7, 7)
 
     a = generate_array(dims, 255, 'uint8')
     b = generate_array(dims, 255, 'uint8')
-    G = make_no_det(generate_array(dims, 255, 'uint16'))
+    G = make_no_det(generate_array(dims, 65535, 'uint16'))
 
     Ga = form_array(a, G, True)
     Gb = form_array(b, G, False)
@@ -73,10 +73,23 @@ if __name__ == '__main__':
 
     print('Private key is', a.nbytes * 8, 'bits')
     print('Are the final arrays equal?', (A == B).flatten()[0])
-    print(decrypt_str(encrypt_str(B, 'Hello world!'), B))
+    print(decrypt_str(encrypt_str(B, 'Hello world!'), A))
 
-    start = perf_counter_ns()
-    decrypt_str(encrypt_str(B, '.'*int(1000000/8)), A)
-    end = perf_counter_ns()
+    start = default_timer()
+    enc = encrypt_str(B, '.'*100*int(1000000/8))
+    lap = default_timer()
+    decrypt_str(enc, A)
+    end = default_timer()
 
-    print('Total encryption/decryption time for 1Mb was', (end-start)/1000000000, 's')
+    enc_ = encrypt_str(B, '.'*(dims[0] * dims[1]))
+    start_ = default_timer()
+    decrypt_str(enc, A)
+    end_ = default_timer()
+
+    print(
+        'Encryption time for 100Mb was', (lap-start),
+        's\nDecryption time for 100Mb was', (end-lap),
+        's\nTotal encryption/decryption time for 100Mb was', (end-start),
+        's\nTotal theoretical time for a brute-force attack (from this machine) is',
+        (end_ - start_) * (2 ** int(a.nbytes * 8)) / (2 * 3600 * 24 * 365 * 1000), 'millenia'
+    )

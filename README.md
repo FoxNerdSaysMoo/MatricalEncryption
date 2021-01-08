@@ -1,4 +1,4 @@
-# How the matrix encryption works
+# Matrical Encryption
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FFoxNerdSaysMoo%2FPyEncryptors.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FFoxNerdSaysMoo%2FPyEncryptors?ref=badge_shield)
 
 ## Basics
@@ -64,6 +64,8 @@ end = perf_counter_ns()
 
 print('Total encryption/decryption time for 1Mb was', (end-start)/1000000000, 's')
 ```
+
+- (Currently python-only) Turn a vector into a valid matrix key.
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FFoxNerdSaysMoo%2FPyEncryptors.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FFoxNerdSaysMoo%2FPyEncryptors?ref=badge_large)
